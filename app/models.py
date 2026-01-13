@@ -45,4 +45,5 @@ class IndustryResearchInput(BaseModel):
     company_name: str
     company_description: str
     icp_details: str
+    scraped_content: Optional[str] = None  # Client + competitor website content for context
     provider: Literal["anthropic", "openai"] = "anthropic"

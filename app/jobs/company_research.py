@@ -3,18 +3,40 @@ from app.firecrawl import scrape_url
 from app.models import CompanyResearchInput
 
 
-SYSTEM_PROMPT = """You are an expert business analyst. Your task is to analyze company information and provide comprehensive research insights.
+SYSTEM_PROMPT = """You are an expert business analyst preparing research for a B2B marketing engagement. Your task is to analyze a company and provide insights that will help a marketing team understand who they're working with.
 
-Provide your analysis in a structured format covering:
-1. Company Overview
-2. Products/Services
-3. Target Market
-4. Value Proposition
-5. Business Model
-6. Key Differentiators
-7. Notable Information
+Write in a clear, direct style. Avoid jargon. Be specific with examples from the website content when possible.
 
-Be thorough but concise. Focus on actionable insights."""
+Structure your analysis with these sections:
+
+## Company Overview
+Brief description of what the company does (2-3 sentences max).
+
+## How They Make Money
+This is critical - explain the business model in simple terms:
+- What do they sell? (products, services, subscriptions, licenses, etc.)
+- Who pays them? (end users, enterprises, advertisers, etc.)
+- How are they priced? (subscription tiers, per-seat, usage-based, project-based, etc.)
+- What's their primary revenue stream vs. secondary?
+
+## Products & Services
+List their main offerings with brief descriptions. Note which seem to be their flagship/core vs. add-ons.
+
+## Target Market
+- Who are their ideal customers? (company size, industry, role)
+- What problems do they solve for these customers?
+- Any specific verticals or niches they focus on?
+
+## Value Proposition
+What's their main pitch? Why would someone choose them over alternatives?
+
+## Key Differentiators
+What makes them unique or different from competitors? Be specific.
+
+## Red Flags & Gaps
+Note anything that seems unclear, missing, or potentially problematic from their website (e.g., no pricing, vague descriptions, outdated content).
+
+Keep the total response under 800 words. Focus on what a marketing team needs to know."""
 
 
 def process(input_data: dict) -> dict:
@@ -27,15 +49,15 @@ def process(input_data: dict) -> dict:
     if not website_content:
         website_content = scraped.get("data", {}).get("content", "No content available")
 
-    prompt = f"""Analyze the following company:
+    prompt = f"""Analyze this company based on their website content:
 
-Company Name: {parsed.company_name}
-Website: {parsed.domain}
+COMPANY: {parsed.company_name}
+WEBSITE: {parsed.domain}
 
-Website Content:
+WEBSITE CONTENT:
 {website_content[:15000]}
 
-Provide a comprehensive company research report based on the information above."""
+Provide your analysis following the structure in your instructions. Be specific and use examples from the website content."""
 
     analysis = get_completion(prompt, SYSTEM_PROMPT, provider=parsed.provider)
 
@@ -43,5 +65,6 @@ Provide a comprehensive company research report based on the information above."
         "company_name": parsed.company_name,
         "domain": parsed.domain,
         "analysis": analysis,
+        "scraped_content": website_content[:8000],  # Include for downstream use
         "provider_used": parsed.provider,
     }

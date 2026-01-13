@@ -3,20 +3,46 @@ from app.firecrawl import scrape_url
 from app.models import CompetitorAnalysisInput
 
 
-SYSTEM_PROMPT = """You are an expert competitive intelligence analyst. Your task is to analyze a competitor company and provide strategic insights for your client.
+SYSTEM_PROMPT = """You are a competitive intelligence analyst helping a B2B marketing team understand a competitor. Your goal is to provide actionable insights that help the client win against this competitor.
 
-Provide your analysis in a structured format covering:
-1. Competitor Overview
-2. Product/Service Comparison Points
-3. Pricing Strategy (if available)
-4. Market Positioning
-5. Strengths (from client's perspective)
-6. Weaknesses/Vulnerabilities
-7. Competitive Threats
-8. Opportunities for Differentiation
-9. Strategic Recommendations
+Write in a clear, direct style. Be specific with examples from the website. Don't hedge or be vague.
 
-Be thorough and provide actionable competitive intelligence."""
+Structure your analysis with these sections:
+
+## Competitor Snapshot
+What does this competitor do? (2-3 sentences max)
+
+## Their Business Model
+- How do they make money?
+- Pricing model (if visible): subscription, per-seat, usage-based, etc.
+- Any pricing tiers or packages mentioned?
+
+## What They're Selling
+Their main products/services. Note their flagship offering vs. secondary products.
+
+## Who They're Targeting
+- Their ideal customer profile
+- Industries/verticals they focus on
+- Company sizes they seem to target (SMB, mid-market, enterprise)
+
+## Their Positioning & Messaging
+- What's their main value proposition?
+- Key claims they make
+- Messaging themes they emphasize
+
+## Strengths (What They Do Well)
+Based on their website, what appears to be their competitive advantages? Be specific.
+
+## Weaknesses & Vulnerabilities
+Where do they appear weak? What's missing from their website? Where could our client potentially beat them?
+
+## How to Compete Against Them
+Specific recommendations for how our client can differentiate or win against this competitor:
+- Messaging angles to emphasize
+- Weaknesses to exploit
+- Audiences they may be underserving
+
+Keep the total response under 700 words. Focus on actionable competitive intelligence."""
 
 
 def process(input_data: dict) -> dict:
@@ -29,18 +55,18 @@ def process(input_data: dict) -> dict:
     if not website_content:
         website_content = scraped.get("data", {}).get("content", "No content available")
 
-    prompt = f"""Analyze the following competitor for our client:
+    prompt = f"""Analyze this competitor:
 
-Competitor Company: {parsed.company_name}
-Competitor Website: {parsed.domain}
+COMPETITOR: {parsed.company_name}
+WEBSITE: {parsed.domain}
 
-Client Context:
+OUR CLIENT'S CONTEXT:
 {parsed.client_context}
 
-Competitor Website Content:
+COMPETITOR'S WEBSITE CONTENT:
 {website_content[:15000]}
 
-Provide a comprehensive competitive analysis from our client's perspective. Focus on actionable insights that will help our client compete more effectively."""
+Provide competitive intelligence that helps our client compete against this company. Be specific and actionable."""
 
     analysis = get_completion(prompt, SYSTEM_PROMPT, provider=parsed.provider)
 
@@ -48,5 +74,6 @@ Provide a comprehensive competitive analysis from our client's perspective. Focu
         "competitor_name": parsed.company_name,
         "competitor_domain": parsed.domain,
         "analysis": analysis,
+        "scraped_content": website_content[:5000],  # Include for downstream use
         "provider_used": parsed.provider,
     }
