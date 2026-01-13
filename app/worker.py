@@ -2,13 +2,14 @@ import time
 import traceback
 import httpx
 from app import database
-from app.jobs import company_research, competitor_analysis, industry_research
+from app.jobs import company_research, competitor_analysis, industry_research, kickoff_questions
 
 
 JOB_HANDLERS = {
     "company_research": company_research.process,
     "competitor_analysis": competitor_analysis.process,
     "industry_research": industry_research.process,
+    "kickoff_questions": kickoff_questions.process,
 }
 
 POLL_INTERVAL = 5

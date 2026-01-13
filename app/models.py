@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class CreateJobRequest(BaseModel):
-    job_type: Literal["company_research", "competitor_analysis", "industry_research"]
+    job_type: Literal["company_research", "competitor_analysis", "industry_research", "kickoff_questions"]
     input: dict[str, Any]
     callback_url: Optional[str] = None
 
@@ -46,4 +46,19 @@ class IndustryResearchInput(BaseModel):
     company_description: str
     icp_details: str
     scraped_content: Optional[str] = None  # Client + competitor website content for context
+    provider: Literal["anthropic", "openai"] = "anthropic"
+
+
+class KickoffQuestionsInput(BaseModel):
+    client_name: str
+    client_domain: str
+    ideal_customer: str
+    sales_cycle: str
+    monthly_budget: str
+    priorities: str
+    past_success: str
+    crm: str
+    team_members: str
+    competitors: str
+    research_summary: str  # Combined research from company, industry, competitor analysis
     provider: Literal["anthropic", "openai"] = "anthropic"
