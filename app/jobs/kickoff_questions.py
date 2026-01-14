@@ -8,51 +8,50 @@ Generate questions that are:
 - Specific to THIS client's industry and situation (not generic)
 - Open-ended to encourage detailed responses
 - Designed to uncover insights that will inform marketing strategy
-- Organized by clear categories
+- Reference the client and competitors BY NAME
 
-Format your response with clear section headers and numbered questions. Be thorough but focused."""
+Format your response with clear section headers (### 1., ### 2., etc.) and numbered questions under each. Be thorough but focused."""
 
 
 def process(input_data: dict) -> dict:
     parsed = KickoffQuestionsInput(**input_data)
 
-    prompt = f"""Generate a comprehensive kickoff meeting question list for {parsed.client_name} ({parsed.client_domain}).
+    prompt = f"""Generate a kickoff meeting agenda for {parsed.client_name} ({parsed.client_domain}).
 
-CLIENT CONTEXT:
-- Industry: Wireless tower infrastructure / telecommunications
+KEY CONTEXT:
 - Ideal Customer: {parsed.ideal_customer}
 - Sales Cycle: {parsed.sales_cycle}
-- Monthly Ad Budget: {parsed.monthly_budget}
+- Budget: {parsed.monthly_budget}/mo
 - Priorities: {parsed.priorities}
-- Past Marketing Success: {parsed.past_success}
-- CRM: {parsed.crm}
-- Team Members: {parsed.team_members}
+- Past Success: {parsed.past_success}
 - Competitors: {parsed.competitors}
+- CRM: {parsed.crm}
+- Team: {parsed.team_members}
 
 RESEARCH SUMMARY:
 {parsed.research_summary[:8000]}
 
-Generate 10-15 specific, insightful questions for EACH of these sections:
+Generate 10-15 specific questions for each section:
 
-### 1. IDEAL CUSTOMERS & SEGMENTATION
-Questions to understand their customer segments, buyer personas, decision-makers, geographic focus, and what makes their best customers different from average ones.
+### 1. YOUR IDEAL CUSTOMERS
+(segmentation, buyer groups, stakeholders, best customers, geographic focus, new vs existing business)
 
-### 2. SALES PROCESS & PIPELINE
-Questions about how deals progress, common objections, what triggers buying decisions, handoff between marketing and sales, and pipeline visibility.
+### 2. YOUR PRIMARY PRODUCTS & SOLUTIONS
+(key benefits, ROI, pricing, implementation, support model, popular features)
 
-### 3. COMPETITIVE POSITIONING
-Questions about how they win against competitors, why they lose deals, what makes them genuinely different, and how customers perceive them vs. alternatives.
+### 3. YOUR DIFFERENTIATORS
+(vs {parsed.competitors} - what wins deals, proof points, weaknesses)
 
-### 4. CONTENT & MESSAGING
-Questions about what resonates with their audience, content that has worked, messaging they want to emphasize, and brand voice/tone preferences.
+### 4. MARKETING INFRASTRUCTURE
+(CRM management, team capacity, tech stack, reporting, automation)
 
-### 5. GOALS & SUCCESS METRICS
-Questions about specific targets, how they measure success, what "good" looks like, and priorities for the engagement.
+### 5. MARKETING STRATEGIES
+(past efforts, Google Ads performance, landing pages, what worked/didn't)
 
-### 6. HISTORICAL CONTEXT & LESSONS
-Questions about what they've tried before, what worked/didn't work, any past agency experiences, and institutional knowledge to leverage.
+### 6. STRATEGIC PRIORITIES
+(the priorities listed above - where goals came from, success metrics, what makes this a win)
 
-Make questions specific to their tower/wireless infrastructure business, their dual customer base (carriers AND landowners), and their competitive landscape. Avoid generic marketing questions - these should feel tailored to THIS client."""
+Make questions specific to {parsed.client_name} and reference competitors by name."""
 
     questions = get_completion(prompt, SYSTEM_PROMPT, provider=parsed.provider)
 
